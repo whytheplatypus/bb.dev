@@ -1,5 +1,35 @@
+# Docker Compose
 
-# Notes:
+## BFD
+The bfd system needs a few variables to be set:
+- `BFD_DIR` specifies the directory on your host machine where you have cloned https://github.com/CMSgov/beneficiary-fhir-data
+- (optional) `SYNTHETIC_DATA` specifies a folder where you have the full set of synthetic rif files.
+- (defaults to `/app`) `BFD_MOUNT_POINT` the path within the service container where the beneficiary-fhir-data directory will be mounted.
+
+Here's an example `.env` file that docker-compose could use:
+```
+BFD_DIR=../beneficiary-fhir-data
+SYNTHETIC_DATA=../synthetic-data
+```
+
+```
+docker-compose up -d bfd
+docker-compose logs -f | grep bfd_1
+docker-compose exec bfd make load
+```
+
+## bb 2.0 specific
+```
+docker-compose up -d bb20
+docker-compose exec bb20 ./docker-compose/migrate.sh
+```
+
+update [bb20 resource router](http://localhost:8000/admin/server/resourcerouter/1/change/) `https://bfd.local:9954`
+
+
+# Vagrant
+
+## Notes:
 
 the directory structure this assumes:
 
@@ -8,7 +38,7 @@ the directory structure this assumes:
 - allow_local_port_config.patch 
 - beneficiary-fhir-data/
 
-## spinup
+### spinup
 ```
 cd beneficiary-fhir-data
 git apply ../allow_local_port_config.patch
@@ -21,7 +51,7 @@ cd /vagrant
 make run
 ```
 
-## Populate a very small amount of data (server must be running)
+### Populate a very small amount of data (server must be running)
 
 ### Apply the patch
 This causes the `bfd-pipeline-rfi-load` integration test to persist `SAMPLE_A` and `SAMPLE_U` to the hsql database
@@ -55,12 +85,3 @@ After this is done you should be able to hit https://localhost:8080/v1/fhir/Pati
 
 
 
-```
-docker-compose up -d bfd
-docker-compose logs -f | grep bfd_1
-docker-compose exec bfd make load
-docker-compose up -d bb20
-docker-compose exec bb20 ./docker-compose/migrate.sh
-```
-
-update [bb20 resource router](http://localhost:8000/admin/server/resourcerouter/1/change/) `https://bfd.local:9954`
