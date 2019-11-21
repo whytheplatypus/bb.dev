@@ -17,10 +17,13 @@ services:
     command: make docker
     volumes:
       - .:/code
+      - ${BFD_DIR}:${BFD_MOUNT_POINT}
+      - ${SYNTHETIC_DATA}:/synthetic-data
     environment:
       JAVA_HOME: "/usr/lib/jvm/java-1.8.0-openjdk-amd64/"
       BFD_PORT: 9954
-      LOCAL_SYNTHETIC_DATA: "/code/synthetic-data"
+      LOCAL_SYNTHETIC_DATA: "/synthetic-data"
+      BFD_MOUNT_POINT: ${BFD_MOUNT_POINT}
     ports:
       - "1337:9954"
     depends_on:
@@ -32,7 +35,7 @@ services:
       - POSTGRES_PASSWORD=toor
   bb20:
     build:
-      context: ${CONTEXT}
+      context: ${BB20_CONTEXT}
       dockerfile: Dockerfile
     command: python3 manage.py runserver 0.0.0.0:8000
     environment:
@@ -46,7 +49,7 @@ services:
     links:
       - "bfd:bfd.local"
     volumes:
-      - ${CONTEXT}:/code
+      - ${BB20_CONTEXT}:/code
       - ./certstore:/certstore
     depends_on:
       - bbdb
