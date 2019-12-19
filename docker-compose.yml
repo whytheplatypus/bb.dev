@@ -30,6 +30,13 @@ services:
       - "1337:9954"
     depends_on:
       - bfddb
+  msls:
+    build:
+      context: ./msls
+      dockerfile: Dockerfile
+    command: app
+    ports: 
+      - "8080:8080"
   bbdb:
     image: postgres
     environment:
@@ -58,10 +65,4 @@ services:
       - ./certstore:/certstore
     depends_on:
       - bbdb
-  msls:
-    build:
-      context: ./msls
-      dockerfile: Dockerfile
-    command: app
-    ports: 
-      - "8080:8080"
+      - msls
